@@ -1,0 +1,29 @@
+<a href="{{ route('posts.create') }} ">Criar novo Post </a><br>
+
+<form action="{{ route('posts.search') }}" method="post">
+  @csrf
+  <input type="text" name="search" id="" placeholder="Filtar">
+  <button type="submit">Filtrar</button>
+</form>
+
+@if (session('message'))
+  {{ session('message')  }}    
+@endif
+
+@foreach($posts as $post)
+  <p>{{ $post->title }} 
+[ <a href="{{ route('post.show', $post->id) }}">Ver</a> |
+  <a href="{{ route('posts.edit', $post->id) }}">Editar </a>  
+
+]</p><br>
+@endforeach
+
+<hr>
+
+@if (isset($fillters))
+<!--Para paginação -->
+  {{ $posts->appends($fillters)->links() }}    
+   
+@else
+  {{ $posts->links( ) }}    
+@endif
