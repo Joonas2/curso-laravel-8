@@ -1,11 +1,11 @@
-@if($errors->any())
-    <ul>
-         @foreach ($errors->all() as $errors)
-            <li>{{ $errors }}</li>       
-         @endforeach
-    </ul>
-@endif
+@extends('admin.layout.app')
 
-<form action="{{ route('posts.store') }}" method="post">
-  @include('admin.posts._partials')
-</form>
+@section('title', 'Criar novo Post')
+    
+
+@section('content')
+          <form action="{{ route('posts.store') }}" method="post" enctype="multipart/form-data">
+            @include('admin.posts._partials.form')
+        </form>
+ 
+@endsection

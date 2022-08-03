@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUpdatePost;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
@@ -20,8 +21,15 @@ class PostController extends Controller
     }
 
     public function store(StoreUpdatePost $request){
+        $data = $request->all();
+
+        if ($request->image->isValid()) {
+            $nameFile = Str::of($request->title)->slug('-').'.'. $request->image->getClientOriginalExtension(); //pega a extensão original do arquivo
+            $image = $request->image->storeAs('posts', $nameFile);
+            $data['image'] = $image;
+        }
         
-        Post::create($request->all()); 
+        Post::create($data); 
         
        return redirect()->route('posts.index')->with('message', 'Post criado com sucesso'); //utilizando o nome da route.
     }

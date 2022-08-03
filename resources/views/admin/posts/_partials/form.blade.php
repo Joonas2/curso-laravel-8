@@ -7,6 +7,7 @@
 @endif
 
 @csrf
+<input type="file" name="image" id="image"><br>
 <input type="text" name="title" id="title" placeholder="Título" value="{{ $post->title ?? old('title') }}"><br>
 <textarea name="content" id="content" cols="30" rows="4" placeholder="Conteudo">{{ $post->content ?? old('content') }}</textarea>
-<button type="submit">Editar </button>
+<button type="submit">Enviar </button>
