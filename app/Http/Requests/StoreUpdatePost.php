@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreUpdatePost extends FormRequest
 {
@@ -23,10 +24,25 @@ class StoreUpdatePost extends FormRequest
      */
     public function rules()
     {
-        return [
-            'title'=> 'required|min:3|max:160',
-            'content'=> ['nullable', 'min:5', 'max:10000'],
-            'image'=> ['required', 'image']
-            ];
+        $id = $this->segment(2); //segmente vai contar os campos da URL
+
+        $rules = [
+            'title' => [
+                'required', 'min:3', 'max:160',
+                //"unique:posts,title,{$id},id", //Unique:na tabela posts, coluna title, onde id seja difente do id
+                Rule::unique('posts')->ignore($id) //também podemos validar dessa forma
+            ],
+
+            'content' => ['nullable', 'min:5', 'max:10000'],
+            'image' => ['required', 'image']
+        ];
+        
+        //Fazendo uma validação para o atualizar, para que não seja necessario ficar subindo toda hora uma imagem
+        if($this->method() == 'PUT'){
+            $rules['image'] = ['nullable', 'image'];
+        }
+
+
+        return $rules;
     }
 }

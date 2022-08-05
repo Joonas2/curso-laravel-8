@@ -4,13 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUpdatePost;
 use App\Models\Post;
+use Illuminate\Contracts\Cache\Store;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
     public function index(){
-        $posts = Post::latest()->paginate(1); //paginate é utilizado para definir a quantidade de elementos por pagina
+        $posts = Post::latest()->paginate(3); //paginate é utilizado para definir a quantidade de elementos por pagina
 
         return view('admin.posts.index', compact('posts'));
     }
@@ -49,6 +51,10 @@ class PostController extends Controller
             return redirect()->route('posts.index');
        }
 
+       if(Storage::exists($post->image)){
+             Storage::delete($post->image);
+       }
+
        $post->delete();
        return redirect()->route('posts.index')->with('message', 'Post deletado com sucesso');
     }
@@ -66,8 +72,21 @@ class PostController extends Controller
         if(!$post =Post::find($id)){
             return redirect()->back();
         }
+        $data = $request->all();
 
-        $post->update($request->all());
+        if ($request->image && $request->image->isValid()) {
+            
+            if(Storage::exists($post->image)){ //Storage verifica se o arquivo existe
+                Storage::delete($post->image); //caso ele exista, ele deleta o arquivo 
+                $nameFile = Str::of($request->title)->slug('-').'.'. $request->image->getClientOriginalExtension(); //pega a extensão original do arquivo
+                $image = $request->image->storeAs('posts', $nameFile);
+                $data['image'] = $image;
+            }
+        }
+
+
+        $post->update($data);
+
         return redirect()->route('posts.index')->with('message', 'Post Criado com sucesso');
      }
 
@@ -76,7 +95,7 @@ class PostController extends Controller
 
         $posts = Post::where('title', 'LIKE', "%{$request->search}%")
                     ->orWhere('content', 'LIKE', "%{$request->search}%")
-                    ->paginate(1);
+                    ->paginate(3);
 
         return view('admin.posts.index', compact('posts', 'fillters'));
     }
